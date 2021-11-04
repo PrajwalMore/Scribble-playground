@@ -36,7 +36,6 @@ contract Tournament{
         require(_endTime >= block.timestamp,"ENTER TIMESTAMP GREATER THAN CURRENT TIME");
         require(_startTime >= block.timestamp && _startTime < _endTime,"ENTER TIMESTAMP GREATER THAN CURRENT TIME");
         
-        //require(msg.value == _reward,"ERR: SEND  EXACT REWARD VALUE TO CONTRACT WHILE CALLING THIS FUNCTION ");
         //Reward calculation.
         uint256 totalReward=_entryFee*(_noOfParticipants);
         uint256 rewardToAdmin = ( totalReward*5)/100;
