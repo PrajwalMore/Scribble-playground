@@ -31,6 +31,8 @@ contract Tournament{
 
     //Creates tournament.
     //admin should add tournament reward to contract while calling function.
+    /// #if_succeeds {:msg "Tournament counter should not be <= that of previous one"} idCntr >= old(idCntr);
+
     function createTournament(uint _startTime,uint _endTime,uint256 _entryFee,uint256 _noOfParticipants) external{
         require(_noOfParticipants>= 2 && _noOfParticipants<=4, "ERR: ENTER PARTICIPANTS BETWEEN >=2 AND <=4 !");
         require(_endTime >= block.timestamp,"ENTER TIMESTAMP GREATER THAN CURRENT TIME");
