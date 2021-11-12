@@ -61,6 +61,8 @@ contract Tournament{
     }
 
     // Allows users to join tournament.
+    /// #if_succeeds {:msg "New participant should not be admin"} participantsAddress[idCntr][-1] != tournament[idCntr].tournamentAdmin;
+    /// #if_succeeds {:msg "New participant should not be participated already"} participantsAddress[idCntr++][-1] != old(participantsAddress[idCntr++]);
     function joinTournament(uint256 _id) external payable{
         require(block.timestamp>=tournament[_id].startTime,"ERR: CANT CALL BEFORE TOURNAMENT STARTS!");
         require(msg.sender!=tournament[_id].tournamentAdmin,"ERR: ADMIN CAN'T JOIN OWN TOURNAMENT");
