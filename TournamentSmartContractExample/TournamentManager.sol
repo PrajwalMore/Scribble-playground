@@ -16,7 +16,6 @@ contract Tournament{
         uint256 noOfParticipants;
     }
 
-
     mapping (uint256=>tournamentInfo) public tournament;
     
     mapping (uint256=>mapping(address=> bool)) public tournamentJoined;
@@ -31,14 +30,16 @@ contract Tournament{
 
     //Creates tournament.
     //admin should add tournament reward to contract while calling function.
+
     /// #if_succeeds {:msg "Tournament counter should not be <= that of previous one"} idCntr >= old(idCntr);
-    /// #if_succeeds {:msg "Reward to admin should be 5% of total entry fees"} tournament[idCntr]== ((tournament[idCntr].entryFee * tournament[idCntr].noOfParticipants)* 5 )/100;
-    /// #if_suceesds {:msg "Reward to participant should `total reward - reward to admin` "} (tournament[idCntr].entryFee * tournament[idCntr].noOfParticipants) - ((tournament[idCntr].entryFee * tournament[idCntr].noOfParticipants)* 5 )/100;
+    /// #if_succeeds {:msg "Reward to admin should be 5% of total entry fees"} tournament[idCntr].rewardToAdmin == ((tournament[idCntr].entryFee * tournament[idCntr].noOfParticipants)* 5 )/100 ;
+    /// #if_suceesds {:msg "Reward to participant should `total reward - reward to admin` "} tournament[idCntr].reward == ((tournament[idCntr].entryFee * tournament[idCntr].noOfParticipants) - ((tournament[idCntr].entryFee * tournament[idCntr].noOfParticipants)* 5 )/100);
     function createTournament(uint _startTime,uint _endTime,uint256 _entryFee,uint256 _noOfParticipants) external{
         require(_noOfParticipants>= 2 && _noOfParticipants<=4, "ERR: ENTER PARTICIPANTS BETWEEN >=2 AND <=4 !");
         require(_endTime >= block.timestamp,"ENTER TIMESTAMP GREATER THAN CURRENT TIME");
         require(_startTime >= block.timestamp && _startTime < _endTime,"ENTER TIMESTAMP GREATER THAN CURRENT TIME");
         
+        //require(msg.value == _reward,"ERR: SEND  EXACT REWARD VALUE TO CONTRACT WHILE CALLING THIS FUNCTION ");
         //Reward calculation.
         uint256 totalReward=_entryFee*(_noOfParticipants);
         uint256 rewardToAdmin = ( totalReward*5)/100;
@@ -62,7 +63,9 @@ contract Tournament{
 
     // Allows users to join tournament.
     /// #if_succeeds {:msg "New participant should not be admin"} participantsAddress[idCntr][-1] != tournament[idCntr].tournamentAdmin;
-    // /// #if_succeeds {:msg "New participant should not be participated already"} participantsAddress[idCntr++][-1] != old(participantsAddress[idCntr++]);
+    /// #if_succeeds {:msg "New participant should not be participated already"} old(tournamentJoined[_id][msg.sender]) == false;
+    /// #if_succeeds {:msg "New joiner should not be the tournament admin"} msg.sender != tournament[_id].tournamentAdmin;
+    /// #if_succeeds {:msg "Contract should receive entry fee"} address(this).balance == (old(address(this).balance) + tournament[_id].entryFee);
     function joinTournament(uint256 _id) external payable{
         require(block.timestamp>=tournament[_id].startTime,"ERR: CANT CALL BEFORE TOURNAMENT STARTS!");
         require(msg.sender!=tournament[_id].tournamentAdmin,"ERR: ADMIN CAN'T JOIN OWN TOURNAMENT");
@@ -80,6 +83,8 @@ contract Tournament{
 
     // Sends reward to winner address and sets it as a winner of that tournament.
     // Callable only by tournament owner.
+
+    /// #if_succeeds {:msg "Rewards amount should be deducted"} address(this).balance == (old(address(this).balance) - (tournament[_id].reward + tournament[_id].rewardToAdmin));
     function sendReward(uint256 _id) external returns(bool,bool){
         require(block.timestamp>=tournament[_id].startTime,"ERR: CANT CALL BEFORE TOURNAMENT STARTS!");
         require(participantsAddress[_id].length == tournament[_id].noOfParticipants,"ERR: PARTICIPANTS ARE NOT ENOUGH!");
@@ -99,7 +104,7 @@ contract Tournament{
         return (success1,success2);
     }
     
-    
+    // Function is vulnerable. Using only for testing.
     function decideWinner(uint256 _id) view private returns(address){
         address[] memory arr=participantsAddress[_id];
         
