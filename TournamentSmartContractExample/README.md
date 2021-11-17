@@ -1,1 +1,1 @@
-This directory contains files for scribble annotated solidity contracts.
+🔵 This directory contains files for scribble annotated solidity contracts.
