@@ -2,7 +2,7 @@
 pragma solidity 0.8.0;
 
 contract Tournament{
-    
+    /// #if_updates {:msg "Only this contract can update this variable"} msg.sender == address(this);
     uint256 public idCntr=0;
 
     struct tournamentInfo{
@@ -39,7 +39,6 @@ contract Tournament{
         require(_endTime >= block.timestamp,"ENTER TIMESTAMP GREATER THAN CURRENT TIME");
         require(_startTime >= block.timestamp && _startTime < _endTime,"ENTER TIMESTAMP GREATER THAN CURRENT TIME");
         
-        //require(msg.value == _reward,"ERR: SEND  EXACT REWARD VALUE TO CONTRACT WHILE CALLING THIS FUNCTION ");
         //Reward calculation.
         uint256 totalReward=_entryFee*(_noOfParticipants);
         uint256 rewardToAdmin = ( totalReward*5)/100;
@@ -84,7 +83,8 @@ contract Tournament{
     // Sends reward to winner address and sets it as a winner of that tournament.
     // Callable only by tournament owner.
 
-    /// #if_succeeds {:msg "Rewards amount should be deducted"} address(this).balance == (old(address(this).balance) - (tournament[_id].reward + tournament[_id].rewardToAdmin));
+    /// #if_succeeds {:msg "Correct rewards amount should be deducted from contract"} address(this).balance == (old(address(this).balance) - (tournament[_id].reward + tournament[_id].rewardToAdmin));
+    /// #if_succeeds {:msg ""} 
     function sendReward(uint256 _id) external returns(bool,bool){
         require(block.timestamp>=tournament[_id].startTime,"ERR: CANT CALL BEFORE TOURNAMENT STARTS!");
         require(participantsAddress[_id].length == tournament[_id].noOfParticipants,"ERR: PARTICIPANTS ARE NOT ENOUGH!");
