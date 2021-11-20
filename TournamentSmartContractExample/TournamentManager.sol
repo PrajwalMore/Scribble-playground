@@ -85,6 +85,7 @@ contract Tournament{
 
     /// #if_succeeds {:msg "Correct rewards amount should be deducted from contract"} address(this).balance == (old(address(this).balance) - (tournament[_id].reward + tournament[_id].rewardToAdmin));
     /// #if_succeeds {:msg "caller should be tournament owner"} msg.sender == tournament[_id].tournamentAdmin;
+    /// #if_succeeds {:msg "End time should be greater than current timesstamp"} old(block.timestamp)<= tournament[_id].endTime;
     function sendReward(uint256 _id) external returns(bool,bool){
         require(block.timestamp>=tournament[_id].startTime,"ERR: CANT CALL BEFORE TOURNAMENT STARTS!");
         require(participantsAddress[_id].length == tournament[_id].noOfParticipants,"ERR: PARTICIPANTS ARE NOT ENOUGH!");
@@ -118,6 +119,7 @@ contract Tournament{
     // Callable only by tournament owner.
     /// #if_succeeds {:msg "Correct rewards amount should be deducted from contract"} address(this).balance == (tournament[_id].entryFee - tournament[_id].noOfParticipants);
     /// #if_succeeds {:msg "caller should be tournament owner"} msg.sender == tournament[_id].tournamentAdmin;
+    /// #if_succeeds {:msg "End time should be greater than current timesstamp"} old(block.timestamp)<= tournament[_id].endTime;
     function returnFees(uint256 _id) external{
         require(msg.sender == tournament[_id].tournamentAdmin,"ERR: YOU ARE NOT TOURNAMENT ADMIN TO OF THIS TOURNAMENT!");
         require(block.timestamp <= tournament[_id].endTime,"ERR: TOURNAMENT ALREADY ENDED!");
