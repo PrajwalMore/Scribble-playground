@@ -104,7 +104,7 @@ contract Tournament{
     
     // Return fees to participated users in case there are no enough participants.
     function returnFees(uint256 _id) external{
-        require(msg.sender == tournament[_id].tournamentAdmin,"ERR: YOU ARE NOT TOURNAMENT ADMIN TO OF THIS TOURNAMENT!");
+        require(msg.sender == tournament[_id].tournamentAdmin,"ERR: YOU ARE NOT TOURNAMENT ADMIN OF THIS TOURNAMENT!");
         require(block.timestamp <= tournament[_id].endTime,"ERR: TOURNAMENT ALREADY ENDED!");
         tournament[_id].endTime=block.timestamp;
         for (uint256 i = 0; i < participantsAddress[_id].length; i++) {
