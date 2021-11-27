@@ -1,7 +1,27 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.0;
+import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 
-contract Tournament{
+contract Tournament is VRFConsumerBase{
+
+    bytes32 public keyHash;
+    uint256 public fee;
+    uint256 public randomResult;
+    
+    constructor() VRFConsumerBase(0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9,0xa36085F69e2889c224210F603D836748e7dC0088){
+        keyHash=0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4;
+        fee=0.1 ether; //0.1 LINK
+    }
+
+        function getRandomNumber() public returns (bytes32 requestId) {
+        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
+        return requestRandomness(keyHash, fee);
+    }
+    
+    function fulfillRandomness(bytes32 requestId,uint256 randomness) internal override{
+        randomResult= randomness % 3 +1;
+    }
+
     uint256 public idCntr=0;
 
     struct tournamentInfo{
@@ -104,7 +124,7 @@ contract Tournament{
     
     // Return fees to participated users in case there are no enough participants.
     function returnFees(uint256 _id) external{
-        require(msg.sender == tournament[_id].tournamentAdmin,"ERR: YOU ARE NOT TOURNAMENT ADMIN OF THIS TOURNAMENT!");
+        require(msg.sender == tournament[_id].tournamentAdmin,"ERR: YOU ARE NOT TOURNAMENT ADMIN TO OF THIS TOURNAMENT!");
         require(block.timestamp <= tournament[_id].endTime,"ERR: TOURNAMENT ALREADY ENDED!");
         tournament[_id].endTime=block.timestamp;
         for (uint256 i = 0; i < participantsAddress[_id].length; i++) {
