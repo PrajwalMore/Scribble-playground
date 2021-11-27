@@ -19,7 +19,7 @@ contract Tournament is VRFConsumerBase{
     }
     
     function fulfillRandomness(bytes32 requestId,uint256 randomness) internal override{
-        randomResult= randomness % 3 +1;
+        randomResult= randomness;
     }
 
     uint256 public idCntr=0;
@@ -112,13 +112,14 @@ contract Tournament is VRFConsumerBase{
         return (success1,success2);
     }
     
-    // Function is vulnerable. Using only for testing.
-    function decideWinner(uint256 _id) view private returns(address){
+    function decideWinner(uint256 _id) private returns(address){
         address[] memory arr=participantsAddress[_id];
         
-        uint256 winner= uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, arr)))/(arr.length) ;
+        //uint256 winner= uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, arr)))/(arr.length);
+        getRandomNumber();
         
-        return arr[winner];
+        //return arr[winner];
+        return arr[randomResult % (arr.length -1)+1];
     }
     
     
@@ -167,7 +168,5 @@ contract Tournament is VRFConsumerBase{
     function yourTournaments() view external returns(uint256[] memory){
         uint256[] memory arr=addressToTournament[msg.sender];
         return arr;
-    }
-    
-    
+    }   
 }
